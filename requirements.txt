@@ -1,0 +1,6 @@
+numpy
+torch
+matplotlib
+seaborn
+pytorch-lightning
+os
