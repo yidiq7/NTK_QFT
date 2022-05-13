@@ -9,7 +9,7 @@ class DomainNet(pl.LightningModule):
     
     def __init__(self, lr, hidden_dim=8):
         super(DomainNet, self).__init__()
-        self.lr = lr
+        self.lr = lr # learning rate
         self.loss = nn.MSELoss() # using MSE Loss
         self.epoch = self.current_epoch # save current epoch
         self.tanh = nn.Tanh() # tanh activation
@@ -33,7 +33,7 @@ class DomainNet(pl.LightningModule):
     def training_step(self, batch, batch_no):
         x, y = batch
         logits = self(x)
-        loss = self.loss(logits, y.view(-1,1))
+        loss = self.loss(logits, y.view(-1,1)) # compute loss
         logs={"train_loss:", loss} # for logging
         batch_dictionary={"loss": loss, "log": logs} # for logging
         return batch_dictionary
@@ -52,6 +52,7 @@ if __name__ == '__main__':
     def count_parameters(model):
         return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
+    ### model statistics ###
     model = DomainNet()
     print(model.eval())
     print(f"Number of model parameters: {count_parameters(model)}")

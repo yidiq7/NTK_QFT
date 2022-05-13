@@ -6,6 +6,8 @@ from torch.utils.data import Dataset,DataLoader
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+np.random.seed(1) # simulate same data every time
+
 class Data(Dataset):
     
     def __init__(self, xdata, ydata):     
@@ -34,8 +36,8 @@ def generate_data(train_samples = 10000, test_samples=1000):
 
 x_train, x_test, y_train, y_test = generate_data()
     
-train_ds = Data(x_train, y_train)
-test_ds = Data(x_test, y_test)
+train_ds = Data(x_train, y_train) # turn arrays into Dataset
+test_ds = Data(x_test, y_test) # turn arrays into Dataset
 
 train_dl = DataLoader(train_ds, batch_size=train_ds.__len__()) # using full batch for training 
 test_dl = DataLoader(test_ds, batch_size=64) # not used
@@ -44,8 +46,9 @@ data = {'train_dl': train_dl, 'test_dl': test_dl, 'test_data': y_test} # called 
 
 if __name__ == '__main__':
     
-    sns.set()
+    sns.set() # cosmetics
     
+    ### plotting ###
     fig, (ax1, ax2) = plt.subplots(1, 2)
     ax1.scatter(x_train, y_train, s=5, color='blue')
     ax1.set_title('Train Data')
