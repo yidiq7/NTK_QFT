@@ -5,20 +5,26 @@ import torch.nn as nn
 from torch.optim import SGD
 import pytorch_lightning as pl
 
-class DomainNet(pl.LightningModule):
+class Net(pl.LightningModule):
     
-    def __init__(self, lr, hidden_dim=8):
-        super(DomainNet, self).__init__()
+    def __init__(self, lr=1e-3, width=8, activation='tanh'):
+        super(Net, self).__init__()
         self.lr = lr # learning rate
         self.loss = nn.MSELoss() # using MSE Loss
         self.epoch = self.current_epoch # save current epoch
-        self.tanh = nn.Tanh() # tanh activation
+        self.activation = activation # nonlinearity
         
-        self.hidden_dim = hidden_dim
+        if activation == 'tanh':
+            self.nonlin = nn.Tanh() # Tanh activation
+            
+        if activation == 'relu':
+            self.nonlin = nn.ReLU() # ReLU activation
+        
+        self.width = width
         self.input_dim, self.output_dim = 1, 1 # 1D vector input, output
 
-        self.fc1 = nn.Linear(self.input_dim, self.hidden_dim)
-        self.fc2 = nn.Linear(self.hidden_dim, self.output_dim)
+        self.fc1 = nn.Linear(self.input_dim, self.width)
+        self.fc2 = nn.Linear(self.width, self.output_dim)
         
         self.fc2.weight.data.fill_(0) # 0 output at initialization
         self.fc2.bias.data.fill_(0) # 0 output at initialization
@@ -26,7 +32,7 @@ class DomainNet(pl.LightningModule):
     def forward(self, x):
         x = x.view(-1,1) # fix size mismatch
         x = self.fc1(x)
-        x = self.tanh(x)
+        x = self.nonlin(x)
         x = self.fc2(x)
         return x
 
@@ -44,7 +50,7 @@ class DomainNet(pl.LightningModule):
         epoch_dictionary = {'loss': avg_loss}
         
     def configure_optimizers(self):
-        optimizer = SGD(self.parameters(), lr=self.lr) # training using stochastic gradient descent
+        optimizer = SGD(self.parameters(), lr=self.lr) # training using gradient descent
         return optimizer
         
 if __name__ == '__main__':
@@ -53,7 +59,7 @@ if __name__ == '__main__':
         return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
     ### model statistics ###
-    model = DomainNet()
+    model = Net()
     print(model.eval())
     print(f"Number of model parameters: {count_parameters(model)}")
     
